@@ -71,7 +71,7 @@ API base URLs are configured in `src/constants/api.ts`. No `.env` file is requir
 3. **Error interceptor** normalizes API errors
 4. **Redux store** updates with `items`, `loading`, `error`, `total`
 5. **Memoized selectors** derive `totalPages`, `paginationInfo`
-6. **DataPage** renders with `SearchBar`, `DataTable`, `Pagination`, etc.
+6. **DataPage** composes UI; **`useProductsListPage`** owns selectors, debounce, and fetch effect
 7. **Debounced search** (300ms) → new `fetchProducts` when user stops typing
 
 ---
@@ -83,7 +83,8 @@ src/
 ├── app/                    # App core
 │   ├── App.tsx            # Root component with RouterProvider
 │   ├── routes.tsx         # Route definitions
-│   └── store.ts           # Redux store, typed hooks
+│   ├── store.ts           # Redux store config + RootState / AppDispatch types
+│   └── hooks.ts           # Typed useAppDispatch / useAppSelector
 ├── layout/                 # Dashboard layout
 │   ├── DashboardLayout.tsx
 │   ├── Sidebar.tsx        # Responsive nav (collapsible on mobile)
@@ -95,7 +96,9 @@ src/
 │   └── products/
 │       ├── productsSlice.ts
 │       ├── productsSelectors.ts
-│       └── productsSelectors.test.ts
+│       ├── productsSelectors.test.ts
+│       ├── useProductsListPage.ts   # List page data + effects
+│       └── productTableColumns.tsx  # Column config for DataTable
 ├── shared/
 │   ├── components/       # Reusable UI
 │   │   ├── SearchBar.tsx
@@ -145,7 +148,7 @@ Redux Toolkit was required for this assignment. It is used here for:
 
 3. **Immutability**: `createSlice` uses Immer under the hood, so reducers can be written with "mutating" syntax while staying immutable.
 
-4. **Type safety**: `useAppDispatch` and `useAppSelector` from `store.ts` provide full TypeScript support for actions and state.
+4. **Type safety**: `useAppDispatch` and `useAppSelector` from `hooks.ts` (typed against `store.ts`) keep components and feature hooks fully typed.
 
 5. **DevTools**: Redux DevTools integration is enabled by default for debugging.
 

@@ -32,16 +32,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         aria-label="Close menu"
         onClick={onClose}
         onKeyDown={(e) => e.key === 'Enter' && onClose()}
-        className={`fixed inset-0 z-40 bg-slate-900/50 md:hidden transition-opacity ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 z-40 bg-slate-900/50 transition-opacity md:hidden ${
+          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
       <aside
-        className={`fixed md:sticky top-0 left-0 z-50 w-64 min-h-screen bg-slate-800 text-slate-100 flex flex-col shadow-lg transition-transform duration-200 ease-out md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 flex min-h-screen w-64 flex-col bg-slate-800 text-slate-100 shadow-lg transition-transform duration-200 ease-out md:sticky md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="p-6 border-b border-slate-700">
+        <div className="border-b border-slate-700 p-6">
           <h2 className="text-xl font-semibold">Dashboard</h2>
         </div>
         <nav className="flex-1 p-4">
@@ -51,9 +51,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 to={ROUTES.HOME}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 border-l-4 ${
+                  `flex items-center gap-3 rounded-lg border-l-4 px-4 py-3 transition-colors duration-200 ${
                     isActive
-                      ? 'bg-slate-600 text-white border-l-slate-400'
+                      ? 'border-l-slate-400 bg-slate-600 text-white'
                       : 'border-l-transparent text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`
                 }
@@ -67,9 +67,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 to={ROUTES.DATA}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 border-l-4 ${
+                  `flex items-center gap-3 rounded-lg border-l-4 px-4 py-3 transition-colors duration-200 ${
                     isActive
-                      ? 'bg-slate-600 text-white border-l-slate-400'
+                      ? 'border-l-slate-400 bg-slate-600 text-white'
                       : 'border-l-transparent text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`
                 }

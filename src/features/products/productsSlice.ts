@@ -1,5 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import type { RootState } from '@/app/store.ts'
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit'
 import type { Product, ProductsResponse } from '@/types/index.ts'
 import { productsApi } from '@/services/api.ts'
 
@@ -9,10 +12,23 @@ export interface FetchProductsPayload {
   itemsPerPage?: number
 }
 
+export interface ProductsState {
+  items: Product[]
+  loading: boolean
+  error: string | null
+  searchTerm: string
+  currentPage: number
+  itemsPerPage: number
+  total: number
+}
+
+/** Slice-local root shape avoids store ↔ slice circular imports. */
+type ProductsThunkRootState = { products: ProductsState }
+
 export const fetchProducts = createAsyncThunk<
   ProductsResponse,
   FetchProductsPayload | void,
-  { state: RootState }
+  { state: ProductsThunkRootState }
 >(
   'products/fetchProducts',
   async (payload, { getState }) => {
@@ -37,16 +53,6 @@ export const fetchProducts = createAsyncThunk<
   }
 )
 
-interface ProductsState {
-  items: Product[]
-  loading: boolean
-  error: string | null
-  searchTerm: string
-  currentPage: number
-  itemsPerPage: number
-  total: number
-}
-
 const initialState: ProductsState = {
   items: [],
   loading: false,
@@ -61,14 +67,14 @@ export const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    setSearchTerm: (state, action: { payload: string }) => {
+    setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload
       state.currentPage = 1
     },
-    setCurrentPage: (state, action: { payload: number }) => {
+    setCurrentPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload
     },
-    setItemsPerPage: (state, action: { payload: number }) => {
+    setItemsPerPage: (state, action: PayloadAction<number>) => {
       state.itemsPerPage = action.payload
       state.currentPage = 1
     },
@@ -87,9 +93,7 @@ export const productsSlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false
-        state.error =
-          (action.error as { message?: string })?.message ??
-          'Failed to fetch products'
+        state.error = action.error.message ?? 'Failed to fetch products'
       })
   },
 })

@@ -13,7 +13,7 @@ function AlertIcon() {
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
-    <div className="bg-white rounded-xl border border-red-200 shadow-sm p-6">
+    <div className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
       <div className="flex gap-3">
         <AlertIcon />
         <div className="flex-1">
@@ -21,7 +21,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           {onRetry && (
             <button
               onClick={onRetry}
-              className="mt-4 px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors"
+              className="mt-4 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
             >
               Retry
             </button>

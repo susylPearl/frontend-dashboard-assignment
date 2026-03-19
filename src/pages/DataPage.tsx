@@ -1,110 +1,76 @@
-import { useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '@/app/store.ts'
-import {
-  fetchProducts,
-  setSearchTerm,
-  setCurrentPage,
-  setItemsPerPage,
-} from '@/features/products/productsSlice.ts'
-import {
-  selectProductsItems,
-  selectProductsLoading,
-  selectProductsError,
-  selectSearchTerm,
-  selectPaginationInfo,
-} from '../features/products/productsSelectors.ts'
 import {
   SearchBar,
   DataTable,
-  type DataTableColumn,
   Pagination,
   Loader,
   ErrorState,
   EmptyState,
-} from '../shared/components/index.ts'
-import { useDebouncedValue } from '../shared/hooks/useDebouncedValue.ts'
-import type { Product } from '../types/index.ts'
-
-const PRODUCT_COLUMNS: DataTableColumn<Product>[] = [
-  {
-    key: 'thumbnail',
-    header: 'Thumbnail',
-    render: (p: Product) => (
-      <img
-        src={p.thumbnail}
-        alt={p.title}
-        className="size-14 object-cover rounded-lg aspect-square"
-      />
-    ),
-  },
-  { key: 'title', header: 'Title' },
-  { key: 'price', header: 'Price', render: (p: Product) => `$${p.price}` },
-  { key: 'category', header: 'Category' },
-  { key: 'brand', header: 'Brand' },
-]
-
+} from '@/shared/components/index.ts'
+import { PRODUCT_TABLE_COLUMNS } from '@/features/products/productTableColumns.tsx'
+import { useProductsListPage } from '@/features/products/useProductsListPage.ts'
 export function DataPage() {
-  const dispatch = useAppDispatch()
-  const items = useAppSelector(selectProductsItems)
-  const loading = useAppSelector(selectProductsLoading)
-  const error = useAppSelector(selectProductsError)
-  const searchTerm = useAppSelector(selectSearchTerm)
-  const { currentPage, itemsPerPage, totalPages } =
-    useAppSelector(selectPaginationInfo)
+  const {
+    items,
+    loading,
+    error,
+    searchTerm,
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    onSearchChange,
+    onPageChange,
+    onItemsPerPageChange,
+    retry,
+  } = useProductsListPage()
 
-  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300)
-
-  useEffect(() => {
-    void dispatch(fetchProducts())
-  }, [dispatch, debouncedSearchTerm, currentPage, itemsPerPage])
+  const showResults = !loading && !error
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6 md:mb-8">
+      <h1 className="mb-6 text-2xl font-bold text-slate-900 md:mb-8 md:text-3xl">
         Products
       </h1>
 
-      <div className="mb-6 md:mb-8 flex flex-wrap gap-4 md:gap-6 items-center">
-        <SearchBar
-          value={searchTerm}
-          onChange={(v: string) => dispatch(setSearchTerm(v))}
-          placeholder="Search products..."
-          disabled={loading}
-        />
+      <div className="mb-6 flex flex-wrap items-center gap-3 md:mb-8 md:gap-4">
+        <div className="w-full min-w-0 max-w-sm">
+          <SearchBar
+            value={searchTerm}
+            onChange={onSearchChange}
+            placeholder="Search products..."
+            disabled={loading}
+          />
+        </div>
         <select
+          aria-label="Items per page"
+          title="Items per page"
           value={itemsPerPage}
-          onChange={(e) =>
-            dispatch(setItemsPerPage(Number(e.target.value)))
-          }
+          onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
           disabled={loading}
-          className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:opacity-50 hover:border-slate-400 transition-colors"
+          className="h-8 min-w-[2.75rem] shrink-0 rounded-md border border-slate-300 bg-white px-1 py-0 text-center text-sm font-medium tabular-nums text-slate-900 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/40 disabled:opacity-50"
         >
-          <option value={5}>5 per page</option>
-          <option value={10}>10 per page</option>
-          <option value={20}>20 per page</option>
-          <option value={30}>30 per page</option>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={30}>30</option>
         </select>
       </div>
 
-      {error && (
-        <ErrorState
-          message={error}
-          onRetry={() => void dispatch(fetchProducts())}
-        />
+      {error && !loading && (
+        <ErrorState message={error} onRetry={retry} />
       )}
 
-      {loading ? (
-        <Loader message="Loading products..." />
-      ) : (
+      {loading && <Loader message="Loading products..." />}
+
+      {showResults && (
         <>
           {items.length === 0 ? (
             <EmptyState message="No products found" />
           ) : (
             <div className="mb-8">
               <DataTable
-                columns={PRODUCT_COLUMNS}
+                columns={PRODUCT_TABLE_COLUMNS}
                 data={items}
-                keyExtractor={(p: Product) => p.id}
+                keyExtractor={(p) => p.id}
               />
             </div>
           )}
@@ -114,7 +80,7 @@ export function DataPage() {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={(page: number) => dispatch(setCurrentPage(page))}
+                onPageChange={onPageChange}
                 disabled={loading}
               />
             </div>

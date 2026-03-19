@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 
@@ -9,7 +8,8 @@ export function DashboardLayout() {
   const location = useLocation()
 
   useEffect(() => {
-    setIsSidebarOpen(false)
+    const id = requestAnimationFrame(() => setIsSidebarOpen(false))
+    return () => cancelAnimationFrame(id)
   }, [location.pathname])
 
   return (
