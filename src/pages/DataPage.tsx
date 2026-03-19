@@ -2,6 +2,7 @@ import {
   SearchBar,
   DataTable,
   Pagination,
+  ItemsPerPageSelect,
   Loader,
   ErrorState,
   EmptyState,
@@ -23,65 +24,66 @@ export function DataPage() {
     retry,
   } = useProductsListPage()
 
-  const showResults = !loading && !error
+  const showTable = !error && (!loading || items.length > 0)
+  const showInitialLoader = loading && items.length === 0 && !error
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900 md:mb-8 md:text-3xl">
+      <h1 className="mb-6 text-3xl font-bold tracking-tight text-neutral-950 md:mb-8 md:text-4xl">
         Products
       </h1>
 
       <div className="mb-6 flex flex-wrap items-center gap-3 md:mb-8 md:gap-4">
-        <div className="w-full min-w-0 max-w-sm">
+        <div className="w-full min-w-0 max-w-[14rem] sm:max-w-xs">
           <SearchBar
             value={searchTerm}
             onChange={onSearchChange}
             placeholder="Search products..."
-            disabled={loading}
           />
         </div>
-        <select
+        <ItemsPerPageSelect
           aria-label="Items per page"
-          title="Items per page"
           value={itemsPerPage}
-          onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-          disabled={loading}
-          className="h-8 min-w-[2.75rem] shrink-0 rounded-md border border-slate-300 bg-white px-1 py-0 text-center text-sm font-medium tabular-nums text-slate-900 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/40 disabled:opacity-50"
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={30}>30</option>
-        </select>
+          onChange={onItemsPerPageChange}
+          options={[5, 10, 20, 30]}
+        />
       </div>
 
       {error && !loading && (
         <ErrorState message={error} onRetry={retry} />
       )}
 
-      {loading && <Loader message="Loading products..." />}
+      {showInitialLoader && (
+        <Loader message="Loading products..." />
+      )}
 
-      {showResults && (
+      {showTable && (
         <>
-          {items.length === 0 ? (
+          {items.length === 0 && !loading ? (
             <EmptyState message="No products found" />
-          ) : (
-            <div className="mb-8">
+          ) : items.length > 0 ? (
+            <div
+              className={`relative mb-8 ${loading ? 'opacity-70 transition-opacity' : ''}`}
+            >
+              {loading && (
+                <p className="mb-2 text-xs text-slate-500" aria-live="polite">
+                  Updating results…
+                </p>
+              )}
               <DataTable
                 columns={PRODUCT_TABLE_COLUMNS}
                 data={items}
                 keyExtractor={(p) => p.id}
               />
             </div>
-          )}
+          ) : null}
 
-          {totalPages > 1 && (
-            <div className="mt-6">
+          {totalPages > 1 && items.length > 0 && (
+            <div className="mt-8 border-t border-slate-200/80 pt-6">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={onPageChange}
-                disabled={loading}
               />
             </div>
           )}

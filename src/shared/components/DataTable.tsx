@@ -18,33 +18,28 @@ export function DataTable<T>({
   keyExtractor,
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-      <table className="min-w-[600px] w-full divide-y divide-slate-200">
-        <thead className="bg-slate-100">
-          <tr>
+    <div className="overflow-x-auto rounded-xl border border-slate-200/80 bg-white">
+      <table className="min-w-[600px] w-full">
+        <thead>
+          <tr className="border-b border-slate-100">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-5 py-4 text-left text-sm font-semibold text-slate-800"
+                className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400"
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
-          {data.map((item, i) => (
+        <tbody className="divide-y divide-slate-100">
+          {data.map((item) => (
             <tr
               key={keyExtractor(item)}
-              className={`transition-colors ${
-                i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'
-              } hover:bg-slate-100`}
+              className="bg-white transition-colors hover:bg-slate-50/80"
             >
               {columns.map((col) => (
-                <td
-                  key={col.key}
-                  className="px-5 py-4 text-sm text-slate-800"
-                >
+                <td key={col.key} className="px-5 py-4 align-middle text-sm">
                   {col.render
                     ? col.render(item)
                     : String((item as Record<string, unknown>)[col.key] ?? '')}

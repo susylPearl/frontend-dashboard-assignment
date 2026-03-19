@@ -25,36 +25,37 @@ function DataIcon() {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
-      {/* Mobile overlay */}
       <div
         role="button"
         tabIndex={0}
         aria-label="Close menu"
         onClick={onClose}
         onKeyDown={(e) => e.key === 'Enter' && onClose()}
-        className={`fixed inset-0 z-40 bg-slate-900/50 transition-opacity md:hidden ${
+        className={`fixed inset-0 z-40 bg-black/45 transition-opacity md:hidden ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
       <aside
-        className={`fixed top-0 left-0 z-50 flex min-h-screen w-64 flex-col bg-slate-800 text-slate-100 shadow-lg transition-transform duration-200 ease-out md:sticky md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 flex min-h-screen w-[15.5rem] flex-col bg-neutral-950 text-neutral-100 shadow-2xl transition-transform duration-200 ease-out md:sticky md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="border-b border-slate-700 p-6">
-          <h2 className="text-xl font-semibold">Dashboard</h2>
+        <div className="border-b border-neutral-800 px-5 py-6">
+          <h2 className="text-lg font-semibold tracking-tight text-white">
+            Dashboard
+          </h2>
         </div>
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-3">
           <ul className="space-y-1">
             <li>
               <NavLink
                 to={ROUTES.HOME}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg border-l-4 px-4 py-3 transition-colors duration-200 ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'border-l-slate-400 bg-slate-600 text-white'
-                      : 'border-l-transparent text-slate-300 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-neutral-800 text-white'
+                      : 'text-neutral-400 hover:bg-neutral-800/60 hover:text-white'
                   }`
                 }
               >
@@ -67,10 +68,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 to={ROUTES.DATA}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg border-l-4 px-4 py-3 transition-colors duration-200 ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'border-l-slate-400 bg-slate-600 text-white'
-                      : 'border-l-transparent text-slate-300 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-neutral-800 text-white'
+                      : 'text-neutral-400 hover:bg-neutral-800/60 hover:text-white'
                   }`
                 }
               >

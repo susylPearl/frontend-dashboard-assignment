@@ -15,7 +15,8 @@ import {
   selectSearchTerm,
 } from './productsSelectors.ts'
 
-const SEARCH_DEBOUNCE_MS = 300
+/** Delay after typing stops before calling the API (avoids a request per keystroke). */
+const SEARCH_DEBOUNCE_MS = 350
 
 /**
  * Encapsulates products list data flow: selectors, debounced refetch, and actions.

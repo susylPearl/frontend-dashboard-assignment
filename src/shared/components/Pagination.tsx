@@ -8,7 +8,7 @@ interface PaginationProps {
 function ChevronLeftIcon() {
   return (
     <svg
-      className="size-5"
+      className="size-4"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -27,7 +27,7 @@ function ChevronLeftIcon() {
 function ChevronRightIcon() {
   return (
     <svg
-      className="size-5"
+      className="size-4"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -43,35 +43,103 @@ function ChevronRightIcon() {
   )
 }
 
+/** Page indices and ellipsis for compact numbered pagination. */
+function getPageNumbers(
+  current: number,
+  total: number
+): (number | 'ellipsis')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+
+  const pages: (number | 'ellipsis')[] = [1]
+  const left = Math.max(2, current - 1)
+  const right = Math.min(total - 1, current + 1)
+
+  if (left > 2) {
+    pages.push('ellipsis')
+  }
+
+  for (let i = left; i <= right; i++) {
+    pages.push(i)
+  }
+
+  if (right < total - 1) {
+    pages.push('ellipsis')
+  }
+
+  if (total > 1) {
+    pages.push(total)
+  }
+
+  return pages
+}
+
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
   disabled = false,
 }: PaginationProps) {
+  const items = getPageNumbers(currentPage, totalPages)
+
   return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage <= 1 || disabled}
-        aria-label="Previous page"
-        className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white p-2 text-slate-700 transition-all hover:bg-slate-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <ChevronLeftIcon />
-      </button>
-      <span className="min-w-[7.5rem] text-center text-sm text-slate-600 tabular-nums">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <p className="text-center text-sm text-slate-400 tabular-nums sm:text-left">
         Page {currentPage} of {totalPages}
-      </span>
-      <button
-        type="button"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage >= totalPages || disabled}
-        aria-label="Next page"
-        className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white p-2 text-slate-700 transition-all hover:bg-slate-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <ChevronRightIcon />
-      </button>
+      </p>
+
+      <div className="flex items-center justify-center gap-1 sm:justify-end">
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1 || disabled}
+          aria-label="Previous page"
+          className="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+        >
+          <ChevronLeftIcon />
+        </button>
+
+        <div className="flex items-center gap-0.5 px-1">
+          {items.map((item, idx) =>
+            item === 'ellipsis' ? (
+              <span
+                key={`e-${idx}`}
+                className="flex size-9 items-center justify-center text-sm text-slate-400"
+                aria-hidden
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => onPageChange(item)}
+                disabled={disabled}
+                aria-label={`Page ${item}`}
+                aria-current={item === currentPage ? 'page' : undefined}
+                className={
+                  item === currentPage
+                    ? 'inline-flex size-8 cursor-pointer items-center justify-center rounded-md bg-blue-600 text-xs font-medium text-white shadow-sm tabular-nums transition-colors disabled:cursor-not-allowed'
+                    : 'inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-sm font-medium text-slate-600 tabular-nums transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed'
+                }
+              >
+                {item}
+              </button>
+            )
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages || disabled}
+          aria-label="Next page"
+          className="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+        >
+          <ChevronRightIcon />
+        </button>
+      </div>
     </div>
   )
 }
