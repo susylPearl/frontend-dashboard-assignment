@@ -4,10 +4,11 @@ import {
   useDispatch,
   useSelector,
 } from 'react-redux'
+import { productsSlice } from '@/features/products/productsSlice.ts'
 
 export const store = configureStore({
   reducer: {
-    // Add feature slices here as the app grows
+    products: productsSlice.reducer,
   },
 })
 
