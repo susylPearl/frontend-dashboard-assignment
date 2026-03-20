@@ -2,10 +2,12 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from 'react'
+import { createPortal } from 'react-dom'
 
 export function DropdownMenuCheckIcon({ className }: { className?: string }) {
   return (
@@ -58,6 +60,33 @@ function ChevronDownFilled({ className, open }: { className?: string; open: bool
   )
 }
 
+const MENU_MIN_WIDTH_PX = 168 // matches min-w-[10.5rem]
+const MENU_MARGIN = 8
+
+function computeMenuPlacement(
+  root: HTMLElement,
+  align: 'start' | 'end'
+): { top: number; left: number } {
+  const rect = root.getBoundingClientRect()
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+
+  let left =
+    align === 'end' ? rect.right - MENU_MIN_WIDTH_PX : rect.left
+  left = Math.max(
+    MENU_MARGIN,
+    Math.min(left, vw - MENU_MIN_WIDTH_PX - MENU_MARGIN)
+  )
+
+  let top = rect.bottom + 6
+  const estHeight = 220
+  if (top + estHeight > vh - MENU_MARGIN) {
+    top = Math.max(MENU_MARGIN, rect.top - estHeight - 6)
+  }
+
+  return { top, left }
+}
+
 interface DropdownMenuProps {
   ariaLabel: string
   disabled?: boolean
@@ -81,8 +110,8 @@ interface DropdownMenuProps {
 }
 
 /**
- * SaaS-style anchored menu: icon/label trigger opens a popover list.
- * Closes on outside click, Escape, and after item selection.
+ * SaaS-style menu: opens in a fixed portal so it isn’t clipped by `overflow-auto`
+ * ancestors and stays within the viewport on small screens.
  */
 export function DropdownMenu({
   ariaLabel,
@@ -98,19 +127,45 @@ export function DropdownMenu({
   chevronVariant = 'outline',
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false)
+  const [placement, setPlacement] = useState<{ top: number; left: number } | null>(
+    null
+  )
   const rootRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const buttonId = useId()
   const menuId = useId()
   const tooltipId = useId()
 
   const close = useCallback(() => setOpen(false), [])
 
+  const updatePlacement = useCallback(() => {
+    const root = rootRef.current
+    if (!root) return
+    setPlacement(computeMenuPlacement(root, align))
+  }, [align])
+
+  useLayoutEffect(() => {
+    if (!open) return
+    updatePlacement()
+  }, [open, align, updatePlacement])
+
+  useEffect(() => {
+    if (!open) return
+    const onScrollOrResize = () => updatePlacement()
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [open, updatePlacement])
+
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      const t = e.target as Node
+      if (rootRef.current?.contains(t) || menuRef.current?.contains(t)) return
+      setOpen(false)
     }
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false)
@@ -130,6 +185,24 @@ export function DropdownMenu({
   const closedTrigger = triggerClassName ?? defaultClosed
   const openTrigger = openTriggerClassName ?? defaultOpen
   const stateTrigger = open ? openTrigger : closedTrigger
+
+  const menuPanel = placement ? (
+    <div
+      ref={menuRef}
+      id={menuId}
+      role="menu"
+      aria-labelledby={buttonId}
+      style={{
+        position: 'fixed',
+        top: placement.top,
+        left: placement.left,
+        zIndex: 9999,
+      }}
+      className="w-[min(10.5rem,calc(100vw-1rem))] overflow-hidden rounded-xl border border-slate-200/90 bg-white py-1 shadow-lg shadow-slate-900/10 ring-1 ring-slate-900/5"
+    >
+      {children(close)}
+    </div>
+  ) : null
 
   return (
     <div
@@ -187,18 +260,10 @@ export function DropdownMenu({
         ) : null}
       </div>
 
-      {open && (
-        <div
-          id={menuId}
-          role="menu"
-          aria-labelledby={buttonId}
-          className={`absolute top-full z-50 mt-1.5 min-w-[10.5rem] overflow-hidden rounded-xl border border-slate-200/90 bg-white py-1 shadow-lg shadow-slate-900/10 ring-1 ring-slate-900/5 ${
-            align === 'end' ? 'right-0' : 'left-0'
-          }`}
-        >
-          {children(close)}
-        </div>
-      )}
+      {open &&
+        menuPanel != null &&
+        typeof document !== 'undefined' &&
+        createPortal(menuPanel, document.body)}
     </div>
   )
 }
@@ -225,7 +290,7 @@ export function DropdownMenuItem({
       <span className="flex size-4 shrink-0 items-center justify-center text-blue-600">
         {selected ? <DropdownMenuCheckIcon className="size-4" /> : null}
       </span>
-      <span className="min-w-0 flex-1 truncate">{children}</span>
+      <span className="min-w-0 flex-1 text-left">{children}</span>
     </button>
   )
 }

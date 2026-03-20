@@ -9,10 +9,10 @@ interface ItemsPerPageSelectProps {
 }
 
 const pillClosed =
-  'rounded-xl border border-stone-200/90 bg-[#f7f5f0] text-slate-800 shadow-none hover:border-stone-300/90 hover:bg-[#f0ebe3] gap-1.5 px-3 pr-2.5'
+  'rounded-xl border border-stone-200/90 bg-[#f7f5f0] text-slate-800 shadow-none hover:border-stone-300/90 hover:bg-[#f0ebe3] gap-1.5 px-3 pr-2.5 focus-visible:ring-2 focus-visible:ring-stone-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5f4f1]'
 
 const pillOpen =
-  'rounded-xl border border-stone-300 bg-[#ebe8e0] text-slate-900 shadow-none ring-0 gap-1.5 px-3 pr-2.5'
+  'rounded-xl border border-stone-300 bg-[#ebe8e0] text-slate-900 shadow-none ring-0 gap-1.5 px-3 pr-2.5 focus-visible:ring-2 focus-visible:ring-stone-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5f4f1]'
 
 export function ItemsPerPageSelect({
   value,
