@@ -72,7 +72,7 @@ API base URLs are configured in `src/constants/api.ts`. No `.env` file is requir
 4. **Redux store** updates with `items`, `loading`, `error`, `total`
 5. **Memoized selectors** derive `totalPages`, `paginationInfo`
 6. **DataPage** composes UI; **`useProductsListPage`** owns selectors, debounce, and fetch effect
-7. **Debounced search** (300ms) → new `fetchProducts` when user stops typing
+7. **Debounced search** (~350ms) → new `fetchProducts` when user stops typing
 
 ---
 
@@ -98,12 +98,16 @@ src/
 │       ├── productsSelectors.ts
 │       ├── productsSelectors.test.ts
 │       ├── useProductsListPage.ts   # List page data + effects
-│       └── productTableColumns.tsx  # Column config for DataTable
+│       └── productTableColumns.tsx  # getProductTableColumns() — includes price sort in Price header
 ├── shared/
 │   ├── components/       # Reusable UI
 │   │   ├── SearchBar.tsx
 │   │   ├── DataTable.tsx
+│   │   ├── DropdownMenu.tsx
 │   │   ├── Pagination.tsx
+│   │   ├── ItemsPerPageSelect.tsx
+│   │   ├── PriceSortSelect.tsx
+│   │   ├── ProductTableSkeleton.tsx
 │   │   ├── Loader.tsx
 │   │   ├── ErrorState.tsx
 │   │   └── EmptyState.tsx
@@ -127,12 +131,12 @@ src/
 
 - **Layout**: Responsive dashboard with sidebar (collapsible on mobile), header with breadcrumbs
 - **Routing**: React Router with `/` (Home) and `/data` (Products)
-- **Products**: Data table with search, pagination, items-per-page (5/10/20/30)
+- **Products**: Data table with search, **price sort** (icon toggle: low→high / high→low on the current page), pagination, items-per-page (5/10/20/30)
 - **Data source**: [DummyJSON](https://dummyjson.com/products) API
 - **State**: Redux Toolkit with `createAsyncThunk` for async fetch
 - **Selectors**: Memoized selectors for items, pagination, loading, error
-- **UI components**: SearchBar, DataTable, Pagination, Loader, ErrorState, EmptyState
-- **Debounced search**: 300ms delay to reduce API calls while typing
+- **UI components**: SearchBar, DataTable, DropdownMenu, Pagination, ItemsPerPageSelect, PriceSortSelect, ProductTableSkeleton, Loader, ErrorState, EmptyState
+- **Debounced search**: ~350ms delay to reduce API calls while typing
 - **Error handling**: Normalized API errors, retry on failure
 - **Styling**: TailwindCSS with responsive design
 
@@ -142,7 +146,7 @@ src/
 
 Redux Toolkit was required for this assignment. It is used here for:
 
-1. **Centralized state**: Products data (items, loading, error, searchTerm, currentPage, itemsPerPage, total) lives in one place, accessible from any component.
+1. **Centralized state**: Products data (items, loading, error, searchTerm, currentPage, itemsPerPage, total, `priceSortOrder`) lives in one place, accessible from any component.
 
 2. **Async logic**: `createAsyncThunk` handles the fetch lifecycle (pending, fulfilled, rejected) in a clean, declarative way without manual boilerplate.
 

@@ -8,6 +8,23 @@ export const selectProductsItems = createSelector(
   (products) => products.items
 )
 
+export const selectPriceSortOrder = createSelector(
+  [selectProductsState],
+  (p) => p.priceSortOrder
+)
+
+/** Current page items, optionally sorted by price (client-side). */
+export const selectProductsItemsSorted = createSelector(
+  [selectProductsItems, selectPriceSortOrder],
+  (items, order) => {
+    const next = [...items]
+    next.sort((a, b) =>
+      order === 'asc' ? a.price - b.price : b.price - a.price
+    )
+    return next
+  }
+)
+
 export const selectProductsTotal = createSelector(
   [selectProductsState],
   (products) => products.total

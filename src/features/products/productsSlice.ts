@@ -6,6 +6,8 @@ import {
 import type { Product, ProductsResponse } from '@/types/index.ts'
 import { productsApi } from '@/services/api.ts'
 
+export type PriceSortOrder = 'asc' | 'desc'
+
 export interface FetchProductsPayload {
   searchTerm?: string
   currentPage?: number
@@ -20,6 +22,8 @@ export interface ProductsState {
   currentPage: number
   itemsPerPage: number
   total: number
+  /** Client-side sort for current page (API order preserved when `default`). */
+  priceSortOrder: PriceSortOrder
 }
 
 /** Slice-local root shape avoids store ↔ slice circular imports. */
@@ -61,6 +65,7 @@ const initialState: ProductsState = {
   currentPage: 1,
   itemsPerPage: 10,
   total: 0,
+  priceSortOrder: 'asc',
 }
 
 export const productsSlice = createSlice({
@@ -77,6 +82,9 @@ export const productsSlice = createSlice({
     setItemsPerPage: (state, action: PayloadAction<number>) => {
       state.itemsPerPage = action.payload
       state.currentPage = 1
+    },
+    setPriceSortOrder: (state, action: PayloadAction<PriceSortOrder>) => {
+      state.priceSortOrder = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -98,5 +106,9 @@ export const productsSlice = createSlice({
   },
 })
 
-export const { setSearchTerm, setCurrentPage, setItemsPerPage } =
-  productsSlice.actions
+export const {
+  setSearchTerm,
+  setCurrentPage,
+  setItemsPerPage,
+  setPriceSortOrder,
+} = productsSlice.actions

@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import type { RootState } from '@/app/store.ts'
+import type { Product } from '@/types/index.ts'
 import {
   selectTotalPages,
   selectPaginationInfo,
   selectSearchTerm,
+  selectProductsItemsSorted,
 } from './productsSelectors.ts'
 
 function createMockState(overrides: Partial<RootState['products']> = {}): RootState {
@@ -16,6 +18,7 @@ function createMockState(overrides: Partial<RootState['products']> = {}): RootSt
       currentPage: 1,
       itemsPerPage: 10,
       total: 0,
+      priceSortOrder: 'asc',
       ...overrides,
     },
   } as RootState
@@ -60,6 +63,55 @@ describe('productsSelectors', () => {
     it('returns search term from state', () => {
       const state = createMockState({ searchTerm: 'phone' })
       expect(selectSearchTerm(state)).toBe('phone')
+    })
+  })
+
+  describe('selectProductsItemsSorted', () => {
+    const mockProducts: Product[] = [
+      {
+        id: 1,
+        title: 'A',
+        description: '',
+        price: 100,
+        discountPercentage: 0,
+        rating: 0,
+        stock: 0,
+        brand: 'b',
+        category: 'c',
+        thumbnail: '',
+        images: [],
+      },
+      {
+        id: 2,
+        title: 'B',
+        description: '',
+        price: 10,
+        discountPercentage: 0,
+        rating: 0,
+        stock: 0,
+        brand: 'b',
+        category: 'c',
+        thumbnail: '',
+        images: [],
+      },
+    ]
+
+    it('sorts ascending by price', () => {
+      const state = createMockState({
+        items: mockProducts,
+        priceSortOrder: 'asc',
+      })
+      const sorted = selectProductsItemsSorted(state)
+      expect(sorted.map((p) => p.id)).toEqual([2, 1])
+    })
+
+    it('sorts descending by price', () => {
+      const state = createMockState({
+        items: mockProducts,
+        priceSortOrder: 'desc',
+      })
+      const sorted = selectProductsItemsSorted(state)
+      expect(sorted.map((p) => p.id)).toEqual([1, 2])
     })
   })
 })
