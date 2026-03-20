@@ -95,6 +95,11 @@ export function Pagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1 || disabled}
           aria-label="Previous page"
+          title={
+            currentPage <= 1
+              ? 'Already on the first page'
+              : `Go to page ${currentPage - 1}`
+          }
           className="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
         >
           <ChevronLeftIcon />
@@ -117,6 +122,11 @@ export function Pagination({
                 onClick={() => onPageChange(item)}
                 disabled={disabled}
                 aria-label={`Page ${item}`}
+                title={
+                  item === currentPage
+                    ? `Current page (${item} of ${totalPages})`
+                    : `Go to page ${item}`
+                }
                 aria-current={item === currentPage ? 'page' : undefined}
                 className={
                   item === currentPage
@@ -135,6 +145,11 @@ export function Pagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages || disabled}
           aria-label="Next page"
+          title={
+            currentPage >= totalPages
+              ? 'Already on the last page'
+              : `Go to page ${currentPage + 1}`
+          }
           className="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
         >
           <ChevronRightIcon />

@@ -3,29 +3,49 @@ import {
   DataTable,
   Pagination,
   ItemsPerPageSelect,
+  PriceSortSelect,
+  ProductTableSkeleton,
   Loader,
   ErrorState,
   EmptyState,
 } from '@/shared/components/index.ts'
-import { PRODUCT_TABLE_COLUMNS } from '@/features/products/productTableColumns.tsx'
+import { getProductTableColumns } from '@/features/products/productTableColumns.tsx'
 import { useProductsListPage } from '@/features/products/useProductsListPage.ts'
+
 export function DataPage() {
   const {
     items,
+    rawItemsCount,
     loading,
     error,
     searchTerm,
     currentPage,
     itemsPerPage,
     totalPages,
+    priceSortOrder,
     onSearchChange,
     onPageChange,
     onItemsPerPageChange,
+    onPriceSortChange,
     retry,
   } = useProductsListPage()
 
-  const showTable = !error && (!loading || items.length > 0)
-  const showInitialLoader = loading && items.length === 0 && !error
+  const showTable = !error && (!loading || rawItemsCount > 0)
+  const showInitialLoader = loading && rawItemsCount === 0 && !error
+  const showRefetchSkeleton = loading && rawItemsCount > 0
+
+  const tableColumns = getProductTableColumns({
+    priceSortOrder,
+    onPriceSortChange,
+  })
+
+  const priceHeaderSlot = (
+    <PriceSortSelect
+      value={priceSortOrder}
+      onChange={onPriceSortChange}
+      disabled={loading}
+    />
+  )
 
   return (
     <div>
@@ -59,26 +79,26 @@ export function DataPage() {
 
       {showTable && (
         <>
-          {items.length === 0 && !loading ? (
+          {rawItemsCount === 0 && !loading ? (
             <EmptyState message="No products found" />
+          ) : showRefetchSkeleton ? (
+            <div className="mb-8">
+              <ProductTableSkeleton
+                rowCount={itemsPerPage}
+                priceHeaderSlot={priceHeaderSlot}
+              />
+            </div>
           ) : items.length > 0 ? (
-            <div
-              className={`relative mb-8 ${loading ? 'opacity-70 transition-opacity' : ''}`}
-            >
-              {loading && (
-                <p className="mb-2 text-xs text-slate-500" aria-live="polite">
-                  Updating results…
-                </p>
-              )}
+            <div className="mb-8">
               <DataTable
-                columns={PRODUCT_TABLE_COLUMNS}
+                columns={tableColumns}
                 data={items}
                 keyExtractor={(p) => p.id}
               />
             </div>
           ) : null}
 
-          {totalPages > 1 && items.length > 0 && (
+          {totalPages > 1 && rawItemsCount > 0 && (
             <div className="mt-8 border-t border-slate-200/80 pt-6">
               <Pagination
                 currentPage={currentPage}

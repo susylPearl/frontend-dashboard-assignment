@@ -1,3 +1,5 @@
+import { DropdownMenu, DropdownMenuItem } from './DropdownMenu.tsx'
+
 interface ItemsPerPageSelectProps {
   value: number
   onChange: (value: number) => void
@@ -6,52 +8,61 @@ interface ItemsPerPageSelectProps {
   'aria-label'?: string
 }
 
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 9l-7 7-7-7"
-      />
-    </svg>
-  )
-}
+const pillClosed =
+  'rounded-xl border border-stone-200/90 bg-[#f7f5f0] text-slate-800 shadow-none hover:border-stone-300/90 hover:bg-[#f0ebe3] gap-1.5 px-3 pr-2.5'
 
-/**
- * Native select with consistent chevron placement (ss1-style).
- */
+const pillOpen =
+  'rounded-xl border border-stone-300 bg-[#ebe8e0] text-slate-900 shadow-none ring-0 gap-1.5 px-3 pr-2.5'
+
 export function ItemsPerPageSelect({
   value,
   onChange,
   options,
   disabled = false,
-  'aria-label': ariaLabel,
+  'aria-label': ariaLabel = 'Items per page',
 }: ItemsPerPageSelectProps) {
   return (
-    <div className="relative inline-flex shrink-0">
-      <select
-        aria-label={ariaLabel}
-        title={ariaLabel}
-        value={value}
+    <div className="inline-flex items-center gap-2.5">
+      <DropdownMenu
+        className="relative"
+        ariaLabel={`${ariaLabel}, currently ${value} per page`}
         disabled={disabled}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="h-8 min-w-[3.25rem] cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white py-0 pl-2.5 pr-7 text-center text-sm font-medium tabular-nums text-neutral-900 shadow-sm transition-colors hover:border-slate-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+        align="end"
+        variant="default"
+        chevronVariant="solid"
+        triggerClassName={pillClosed}
+        openTriggerClassName={pillOpen}
+        buttonContent={
+          <span className="tabular-nums text-[0.9375rem] font-medium leading-none">
+            {value}
+          </span>
+        }
       >
-        {options.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
-      <ChevronDownIcon className="pointer-events-none absolute right-1.5 top-1/2 size-3.5 -translate-y-1/2 text-neutral-900" />
+        {(close) => (
+          <>
+            {options.map((n) => (
+              <DropdownMenuItem
+                key={n}
+                selected={n === value}
+                onSelect={() => {
+                  onChange(n)
+                  close()
+                }}
+              >
+                <span>
+                  <span className="tabular-nums font-medium text-slate-800">
+                    {n}
+                  </span>
+                  <span className="text-slate-500"> per page</span>
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
+      </DropdownMenu>
+      <span className="select-none text-sm font-medium text-slate-700">
+        items per page
+      </span>
     </div>
   )
 }
